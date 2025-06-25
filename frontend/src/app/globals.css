@@ -1,0 +1,81 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* BakeXP Theme — Pastel, warm, and playful. Tailwind 4.1 @theme variables */
+@theme {
+  --color-background: hsl(40 30% 96%); /* warm cream */
+  --color-foreground: hsl(25 20% 20%); /* rich chocolate */
+  --color-card: hsl(40 30% 99%); /* lighter cream */
+  --color-card-foreground: hsl(25 20% 20%); /* rich chocolate */
+  --color-popover: hsl(40 30% 99%); /* lighter cream */
+  --color-popover-foreground: hsl(25 20% 20%); /* rich chocolate */
+
+  --color-primary: hsl(335 80% 65%); /* strawberry frosting */
+  --color-primary-foreground: hsl(40 30% 99%); /* lighter cream */
+
+  --color-secondary: hsl(160 60% 50%); /* mint frosting */
+  --color-secondary-foreground: hsl(40 30% 99%); /* lighter cream */
+
+  --color-muted: hsl(40 15% 90%); /* subtle cream */
+  --color-muted-foreground: hsl(25 20% 40%); /* soft chocolate */
+  --color-accent: hsl(335 30% 90%); /* light strawberry */
+  --color-accent-foreground: hsl(25 20% 20%); /* rich chocolate */
+
+  --color-destructive: hsl(0 85% 60%);
+  --color-border: hsl(40 15% 85%); /* cream border */
+  --color-input: hsl(40 15% 85%); /* cream input */
+  --color-ring: hsl(25 60% 40%); /* chocolate ring */
+
+  --color-chart-1: hsl(335 80% 65%); /* strawberry frosting */
+  --color-chart-2: hsl(160 60% 50%); /* mint frosting */
+  --color-chart-3: hsl(25 60% 40%); /* chocolate */
+  --color-chart-4: hsl(30 90% 65%); /* orange/peach */
+  --color-chart-5: hsl(45 90% 75%); /* vanilla cream */
+
+  --color-sidebar: hsl(40 30% 99%); /* lighter cream */
+  --color-sidebar-foreground: hsl(25 20% 20%); /* rich chocolate */
+  --color-sidebar-primary: hsl(335 80% 65%); /* strawberry frosting */
+  --color-sidebar-primary-foreground: hsl(40 30% 99%); /* lighter cream */
+  --color-sidebar-accent: hsl(40 15% 90%); /* subtle cream */
+  --color-sidebar-accent-foreground: hsl(25 20% 20%); /* rich chocolate */
+  --color-sidebar-border: hsl(40 15% 85%); /* cream border */
+  --color-sidebar-ring: hsl(25 60% 40%); /* chocolate ring */
+  --color-accent-blue: hsl(220 80% 85%); /* blueberry frosting */
+  --color-accent-lavender: hsl(265 60% 90%); /* lavender frosting */
+  --color-foreground-strong: hsl(25 20% 10%); /* deeper chocolate for text */
+
+  /* Radius */
+  --radius: 0.625rem;
+
+  /* Fonts */
+  --font-display: 'Playfair Display', serif;
+  --font-script: 'Dancing Script', cursive;
+  --font-sans: var(--font-geist-sans, ui-sans-serif, system-ui, sans-serif);
+}
+
+/* Tailwind layers and custom classes */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  .container {
+    @apply px-4 sm:px-6 lg:px-8 mx-auto w-full;
+  }
+}
+
+@layer base {
+  h1, h2, h3, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+  }
+  h1 {
+    @apply font-bold;
+  }
+  .font-script {
+    font-family: var(--font-script);
+  }
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80;
+  }
+}
