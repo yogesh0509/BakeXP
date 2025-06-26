@@ -20,9 +20,9 @@ export class BakePodsService {
     }
   }
 
-  public setAccount(account: Account) {
+  public setAccount(account: Account | null) {
     this.account = account;
-    if (this.contract) {
+    if (this.contract && account) {
       this.contract.connect(account);
     }
   }
@@ -143,15 +143,36 @@ export class BakePodsService {
   }
 
   async getUserPods(userAddress: string): Promise<number[] | null> {
-    if (!this.contract) return null;
-
-    try {
-      const result = await this.contract.get_user_pods(userAddress);
-      return result.map((id: any) => Number(id));
-    } catch (error) {
-      console.error('Failed to get user pods:', error);
+    if (!this.contract) {
+      console.warn('BakePodsService: Contract not initialized');
       return null;
     }
+
+    const maxRetries = 3;
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`BakePodsService: Attempting to get user pods (attempt ${attempt}/${maxRetries})`);
+        
+        const result = await this.contract.get_user_pods(userAddress);
+        const podIds = result.map((id: any) => Number(id));
+        
+        console.log('BakePodsService: Successfully retrieved user pods:', podIds);
+        return podIds;
+      } catch (error) {
+        lastError = error as Error;
+        console.error(`BakePodsService: Attempt ${attempt} failed:`, error);
+        
+        if (attempt < maxRetries) {
+          // Wait before retrying (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+        }
+      }
+    }
+
+    console.error('BakePodsService: All attempts failed:', lastError);
+    return null;
   }
 
   async getPodStats(podId: number): Promise<PodStats | null> {

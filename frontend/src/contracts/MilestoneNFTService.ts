@@ -20,42 +20,61 @@ export class MilestoneNFTService {
     }
   }
 
-  public setAccount(account: Account) {
+  public setAccount(account: Account | null) {
     this.account = account;
-    if (this.contract) {
+    if (this.contract && account) {
       this.contract.connect(account);
     }
   }
 
   // Read functions
   async getUserMilestones(userAddress: string, options?: ContractReadOptions): Promise<UserMilestone[] | null> {
-    if (!this.contract) return null;
-
-    try {
-      const milestoneIds = await this.contract.get_user_milestones(userAddress);
-      
-      const milestones: UserMilestone[] = [];
-      for (const id of milestoneIds) {
-        const milestoneId = Number(id);
-        const milestone = MilestoneNFTService.getMilestoneDefinition(milestoneId);
-        if (milestone) {
-          milestones.push({
-            id: milestoneId,
-            name: milestone.name,
-            description: milestone.description,
-            requirement: milestone.requirement,
-            rewardXP: milestone.rewardXP,
-            mintedAt: Date.now(), // Would need to get from events in real implementation
-            tokenId: BigInt(milestoneId) // Simplified mapping
-          });
-        }
-      }
-      
-      return milestones;
-    } catch (error) {
-      console.error('Failed to get user milestones:', error);
+    if (!this.contract) {
+      console.warn('MilestoneNFTService: Contract not initialized');
       return null;
     }
+
+    const maxRetries = 3;
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`MilestoneNFTService: Attempting to get user milestones (attempt ${attempt}/${maxRetries})`);
+        
+        const milestoneIds = await this.contract.get_user_milestones(userAddress);
+        
+        const milestones: UserMilestone[] = [];
+        for (const id of milestoneIds) {
+          const milestoneId = Number(id);
+          const milestone = MilestoneNFTService.getMilestoneDefinition(milestoneId);
+          if (milestone) {
+            milestones.push({
+              id: milestoneId,
+              name: milestone.name,
+              description: milestone.description,
+              requirement: milestone.requirement,
+              rewardXP: milestone.rewardXP,
+              mintedAt: Date.now(), // Would need to get from events in real implementation
+              tokenId: BigInt(milestoneId) // Simplified mapping
+            });
+          }
+        }
+        
+        console.log('MilestoneNFTService: Successfully retrieved user milestones:', milestones);
+        return milestones;
+      } catch (error) {
+        lastError = error as Error;
+        console.error(`MilestoneNFTService: Attempt ${attempt} failed:`, error);
+        
+        if (attempt < maxRetries) {
+          // Wait before retrying (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+        }
+      }
+    }
+
+    console.error('MilestoneNFTService: All attempts failed:', lastError);
+    return null;
   }
 
   async hasMilestone(userAddress: string, milestoneId: number): Promise<boolean | null> {

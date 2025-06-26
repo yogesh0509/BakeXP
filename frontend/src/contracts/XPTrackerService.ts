@@ -20,37 +20,58 @@ export class XPTrackerService {
     }
   }
 
-  public setAccount(account: Account) {
+  public setAccount(account: Account | null) {
     this.account = account;
-    if (this.contract) {
+    if (this.contract && account) {
       this.contract.connect(account);
     }
   }
 
   // Read functions
   async getUserXPData(userAddress: string, options?: ContractReadOptions): Promise<UserXPData | null> {
-    if (!this.contract) return null;
-
-    try {
-      const [xp, level, streak, totalBakes, lastBakeTimestamp] = await Promise.all([
-        this.contract.get_xp(userAddress),
-        this.contract.get_level(userAddress),
-        this.contract.get_streak(userAddress),
-        this.contract.get_total_bakes(userAddress),
-        this.contract.get_last_bake_timestamp(userAddress)
-      ]);
-
-      return {
-        xp: BigInt(xp.toString()),
-        level: Number(level),
-        streak: Number(streak),
-        totalBakes: Number(totalBakes),
-        lastBakeTimestamp: Number(lastBakeTimestamp)
-      };
-    } catch (error) {
-      console.error('Failed to get user XP data:', error);
+    if (!this.contract) {
+      console.warn('XPTrackerService: Contract not initialized');
       return null;
     }
+
+    const maxRetries = 3;
+    let lastError: Error | null = null;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`XPTrackerService: Attempting to get user XP data (attempt ${attempt}/${maxRetries})`);
+        
+        const [xp, level, streak, totalBakes, lastBakeTimestamp] = await Promise.all([
+          this.contract.get_xp(userAddress),
+          this.contract.get_level(userAddress),
+          this.contract.get_streak(userAddress),
+          this.contract.get_total_bakes(userAddress),
+          this.contract.get_last_bake_timestamp(userAddress)
+        ]);
+
+        const result = {
+          xp: BigInt(xp.toString()),
+          level: Number(level),
+          streak: Number(streak),
+          totalBakes: Number(totalBakes),
+          lastBakeTimestamp: Number(lastBakeTimestamp)
+        };
+
+        console.log('XPTrackerService: Successfully retrieved user XP data:', result);
+        return result;
+      } catch (error) {
+        lastError = error as Error;
+        console.error(`XPTrackerService: Attempt ${attempt} failed:`, error);
+        
+        if (attempt < maxRetries) {
+          // Wait before retrying (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, Math.pow(2, attempt) * 1000));
+        }
+      }
+    }
+
+    console.error('XPTrackerService: All attempts failed:', lastError);
+    return null;
   }
 
   async getUserXP(userAddress: string): Promise<bigint | null> {
