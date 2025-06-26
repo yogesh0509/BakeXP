@@ -1,0 +1,237 @@
+[
+    {
+        "type": "impl",
+        "name": "XPTrackerImpl",
+        "interface_name": "bakexp_contracts::xp_tracker::IXPTracker"
+    },
+    {
+        "type": "struct",
+        "name": "core::integer::u256",
+        "members": [
+            {
+                "name": "low",
+                "type": "core::integer::u128"
+            },
+            {
+                "name": "high",
+                "type": "core::integer::u128"
+            }
+        ]
+    },
+    {
+        "type": "interface",
+        "name": "bakexp_contracts::xp_tracker::IXPTracker",
+        "items": [
+            {
+                "type": "function",
+                "name": "add_xp",
+                "inputs": [
+                    {
+                        "name": "user_addr",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "amount",
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "get_xp",
+                "inputs": [
+                    {
+                        "name": "user_addr",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u256"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "log_bake",
+                "inputs": [
+                    {
+                        "name": "user_addr",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    },
+                    {
+                        "name": "timestamp",
+                        "type": "core::integer::u64"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "get_streak",
+                "inputs": [
+                    {
+                        "name": "user_addr",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u32"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "get_total_bakes",
+                "inputs": [
+                    {
+                        "name": "user_addr",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u32"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "get_last_bake_timestamp",
+                "inputs": [
+                    {
+                        "name": "user_addr",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u64"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "get_level",
+                "inputs": [
+                    {
+                        "name": "user_addr",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u32"
+                    }
+                ],
+                "state_mutability": "view"
+            }
+        ]
+    },
+    {
+        "type": "constructor",
+        "name": "constructor",
+        "inputs": [
+            {
+                "name": "owner",
+                "type": "core::starknet::contract_address::ContractAddress"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "bakexp_contracts::xp_tracker::XPTracker::XPAdded",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "user",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "key"
+            },
+            {
+                "name": "amount",
+                "type": "core::integer::u256",
+                "kind": "data"
+            },
+            {
+                "name": "total_xp",
+                "type": "core::integer::u256",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "bakexp_contracts::xp_tracker::XPTracker::BakeLogged",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "user",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "key"
+            },
+            {
+                "name": "timestamp",
+                "type": "core::integer::u64",
+                "kind": "data"
+            },
+            {
+                "name": "streak",
+                "type": "core::integer::u32",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "bakexp_contracts::xp_tracker::XPTracker::StreakUpdated",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "user",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "key"
+            },
+            {
+                "name": "old_streak",
+                "type": "core::integer::u32",
+                "kind": "data"
+            },
+            {
+                "name": "new_streak",
+                "type": "core::integer::u32",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "bakexp_contracts::xp_tracker::XPTracker::Event",
+        "kind": "enum",
+        "variants": [
+            {
+                "name": "XPAdded",
+                "type": "bakexp_contracts::xp_tracker::XPTracker::XPAdded",
+                "kind": "nested"
+            },
+            {
+                "name": "BakeLogged",
+                "type": "bakexp_contracts::xp_tracker::XPTracker::BakeLogged",
+                "kind": "nested"
+            },
+            {
+                "name": "StreakUpdated",
+                "type": "bakexp_contracts::xp_tracker::XPTracker::StreakUpdated",
+                "kind": "nested"
+            }
+        ]
+    }
+]

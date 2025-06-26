@@ -1,0 +1,476 @@
+[
+    {
+        "type": "impl",
+        "name": "BakePodsImpl",
+        "interface_name": "bakexp_contracts::bakepods::IBakePods"
+    },
+    {
+        "type": "struct",
+        "name": "core::byte_array::ByteArray",
+        "members": [
+            {
+                "name": "data",
+                "type": "core::array::Array::<core::bytes_31::bytes31>"
+            },
+            {
+                "name": "pending_word",
+                "type": "core::felt252"
+            },
+            {
+                "name": "pending_word_len",
+                "type": "core::integer::u32"
+            }
+        ]
+    },
+    {
+        "type": "enum",
+        "name": "core::bool",
+        "variants": [
+            {
+                "name": "False",
+                "type": "()"
+            },
+            {
+                "name": "True",
+                "type": "()"
+            }
+        ]
+    },
+    {
+        "type": "struct",
+        "name": "bakexp_contracts::bakepods::Pod",
+        "members": [
+            {
+                "name": "id",
+                "type": "core::integer::u32"
+            },
+            {
+                "name": "name",
+                "type": "core::byte_array::ByteArray"
+            },
+            {
+                "name": "description",
+                "type": "core::byte_array::ByteArray"
+            },
+            {
+                "name": "creator",
+                "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+                "name": "member_limit",
+                "type": "core::integer::u32"
+            },
+            {
+                "name": "created_at",
+                "type": "core::integer::u64"
+            },
+            {
+                "name": "is_active",
+                "type": "core::bool"
+            },
+            {
+                "name": "current_streak",
+                "type": "core::integer::u32"
+            },
+            {
+                "name": "target_streak",
+                "type": "core::integer::u32"
+            }
+        ]
+    },
+    {
+        "type": "struct",
+        "name": "bakexp_contracts::bakepods::PodStats",
+        "members": [
+            {
+                "name": "pod_id",
+                "type": "core::integer::u32"
+            },
+            {
+                "name": "total_bakes",
+                "type": "core::integer::u32"
+            },
+            {
+                "name": "member_count",
+                "type": "core::integer::u32"
+            },
+            {
+                "name": "daily_bakes_today",
+                "type": "core::integer::u32"
+            },
+            {
+                "name": "current_streak",
+                "type": "core::integer::u32"
+            },
+            {
+                "name": "target_streak",
+                "type": "core::integer::u32"
+            },
+            {
+                "name": "is_active",
+                "type": "core::bool"
+            }
+        ]
+    },
+    {
+        "type": "interface",
+        "name": "bakexp_contracts::bakepods::IBakePods",
+        "items": [
+            {
+                "type": "function",
+                "name": "create_pod",
+                "inputs": [
+                    {
+                        "name": "pod_name",
+                        "type": "core::byte_array::ByteArray"
+                    },
+                    {
+                        "name": "target_streak",
+                        "type": "core::integer::u32"
+                    },
+                    {
+                        "name": "max_members",
+                        "type": "core::integer::u32"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::integer::u32"
+                    }
+                ],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "join_pod",
+                "inputs": [
+                    {
+                        "name": "pod_id",
+                        "type": "core::integer::u32"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "leave_pod",
+                "inputs": [
+                    {
+                        "name": "pod_id",
+                        "type": "core::integer::u32"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "log_pod_bake",
+                "inputs": [
+                    {
+                        "name": "pod_id",
+                        "type": "core::integer::u32"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            },
+            {
+                "type": "function",
+                "name": "get_pod",
+                "inputs": [
+                    {
+                        "name": "pod_id",
+                        "type": "core::integer::u32"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "bakexp_contracts::bakepods::Pod"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "get_pod_members",
+                "inputs": [
+                    {
+                        "name": "pod_id",
+                        "type": "core::integer::u32"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::array::Array::<core::starknet::contract_address::ContractAddress>"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "get_user_pods",
+                "inputs": [
+                    {
+                        "name": "user",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::array::Array::<core::integer::u32>"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "check_pod_milestone",
+                "inputs": [
+                    {
+                        "name": "pod_id",
+                        "type": "core::integer::u32"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::array::Array::<core::byte_array::ByteArray>"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "get_pod_stats",
+                "inputs": [
+                    {
+                        "name": "pod_id",
+                        "type": "core::integer::u32"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "bakexp_contracts::bakepods::PodStats"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "has_user_baked_today_in_pod",
+                "inputs": [
+                    {
+                        "name": "pod_id",
+                        "type": "core::integer::u32"
+                    },
+                    {
+                        "name": "user",
+                        "type": "core::starknet::contract_address::ContractAddress"
+                    }
+                ],
+                "outputs": [
+                    {
+                        "type": "core::bool"
+                    }
+                ],
+                "state_mutability": "view"
+            },
+            {
+                "type": "function",
+                "name": "deactivate_pod",
+                "inputs": [
+                    {
+                        "name": "pod_id",
+                        "type": "core::integer::u32"
+                    }
+                ],
+                "outputs": [],
+                "state_mutability": "external"
+            }
+        ]
+    },
+    {
+        "type": "constructor",
+        "name": "constructor",
+        "inputs": [
+            {
+                "name": "xp_tracker_contract",
+                "type": "core::starknet::contract_address::ContractAddress"
+            },
+            {
+                "name": "milestone_nft_contract",
+                "type": "core::starknet::contract_address::ContractAddress"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "bakexp_contracts::bakepods::BakePods::PodCreated",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "pod_id",
+                "type": "core::integer::u32",
+                "kind": "key"
+            },
+            {
+                "name": "creator",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "key"
+            },
+            {
+                "name": "name",
+                "type": "core::byte_array::ByteArray",
+                "kind": "data"
+            },
+            {
+                "name": "target_streak",
+                "type": "core::integer::u32",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "bakexp_contracts::bakepods::BakePods::MemberJoined",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "pod_id",
+                "type": "core::integer::u32",
+                "kind": "key"
+            },
+            {
+                "name": "user",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "key"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "bakexp_contracts::bakepods::BakePods::MemberLeft",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "pod_id",
+                "type": "core::integer::u32",
+                "kind": "key"
+            },
+            {
+                "name": "user",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "key"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "bakexp_contracts::bakepods::BakePods::PodBakeLogged",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "pod_id",
+                "type": "core::integer::u32",
+                "kind": "key"
+            },
+            {
+                "name": "user",
+                "type": "core::starknet::contract_address::ContractAddress",
+                "kind": "key"
+            },
+            {
+                "name": "day",
+                "type": "core::integer::u64",
+                "kind": "data"
+            },
+            {
+                "name": "pod_daily_count",
+                "type": "core::integer::u32",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "bakexp_contracts::bakepods::BakePods::PodMilestoneReached",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "pod_id",
+                "type": "core::integer::u32",
+                "kind": "key"
+            },
+            {
+                "name": "milestone_type",
+                "type": "core::byte_array::ByteArray",
+                "kind": "data"
+            },
+            {
+                "name": "value",
+                "type": "core::integer::u32",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "bakexp_contracts::bakepods::BakePods::PodStreakUpdated",
+        "kind": "struct",
+        "members": [
+            {
+                "name": "pod_id",
+                "type": "core::integer::u32",
+                "kind": "key"
+            },
+            {
+                "name": "old_streak",
+                "type": "core::integer::u32",
+                "kind": "data"
+            },
+            {
+                "name": "new_streak",
+                "type": "core::integer::u32",
+                "kind": "data"
+            }
+        ]
+    },
+    {
+        "type": "event",
+        "name": "bakexp_contracts::bakepods::BakePods::Event",
+        "kind": "enum",
+        "variants": [
+            {
+                "name": "PodCreated",
+                "type": "bakexp_contracts::bakepods::BakePods::PodCreated",
+                "kind": "nested"
+            },
+            {
+                "name": "MemberJoined",
+                "type": "bakexp_contracts::bakepods::BakePods::MemberJoined",
+                "kind": "nested"
+            },
+            {
+                "name": "MemberLeft",
+                "type": "bakexp_contracts::bakepods::BakePods::MemberLeft",
+                "kind": "nested"
+            },
+            {
+                "name": "PodBakeLogged",
+                "type": "bakexp_contracts::bakepods::BakePods::PodBakeLogged",
+                "kind": "nested"
+            },
+            {
+                "name": "PodMilestoneReached",
+                "type": "bakexp_contracts::bakepods::BakePods::PodMilestoneReached",
+                "kind": "nested"
+            },
+            {
+                "name": "PodStreakUpdated",
+                "type": "bakexp_contracts::bakepods::BakePods::PodStreakUpdated",
+                "kind": "nested"
+            }
+        ]
+    }
+]

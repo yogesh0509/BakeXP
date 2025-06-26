@@ -1,0 +1,20 @@
+# Cairo/Scarb
+__pycache__/
+target/
+build/
+.cache/
+*.sierra.json
+*.casm
+*.compiled
+*.abi.json
+*.log
+*.env
+*.vscode/
+*.swp
+*.tmp
+*.bak
+node_modules/
+dist/
+.DS_Store
+# Environment files
+.env

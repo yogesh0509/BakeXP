@@ -1,0 +1,32 @@
+{
+  "name": "bakexp-contracts-deployment",
+  "version": "1.0.0",
+  "description": "BakeXP Smart Contracts Deployment Scripts",
+  "main": "scripts/declare.ts",
+  "scripts": {
+    "declare": "tsx scripts/declare.ts",
+    "declare:sepolia": "NETWORK=sepolia tsx scripts/declare.ts",
+    "declare:mainnet": "NETWORK=mainnet tsx scripts/declare.ts",
+    "deploy-only": "tsx scripts/deploy-only.ts",
+    "deploy-only:sepolia": "NETWORK=sepolia tsx scripts/deploy-only.ts",
+    "deploy-only:mainnet": "NETWORK=mainnet tsx scripts/deploy-only.ts",
+    "verify": "tsx scripts/verify.ts",
+    "setup": "tsx scripts/setup.ts"
+  },
+  "dependencies": {
+    "starknet": "^7.6.2",
+    "dotenv": "^16.4.5",
+    "chalk": "^5.3.0",
+    "ora": "^8.0.1",
+    "enquirer": "^2.4.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "tsx": "^4.7.1",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "type": "module"
+} 

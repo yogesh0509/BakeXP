@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Wallet, Loader2 } from 'lucide-react';
+import { Wallet, Loader2, Key, Shield } from 'lucide-react';
+import { useConnect } from '@starknet-react/core';
 
 interface WalletConnectModalProps {
   isOpen: boolean;
@@ -13,6 +14,18 @@ interface WalletConnectModalProps {
   error: string | null;
 }
 
+// Helper function to get wallet icon
+const WalletIcon = ({ name }: { name: string }) => {
+  switch (name.toLowerCase()) {
+    case 'argentx':
+      return <Key className="w-8 h-8" />;
+    case 'braavos':
+      return <Shield className="w-8 h-8" />;
+    default:
+      return <Wallet className="w-8 h-8" />;
+  }
+};
+
 export default function WalletConnectModal({
   isOpen,
   onClose,
@@ -20,22 +33,8 @@ export default function WalletConnectModal({
   isConnecting,
   error
 }: WalletConnectModalProps) {
+  const { connectors } = useConnect();
   const [selectedWallet, setSelectedWallet] = useState<string | null>(null);
-  
-  const walletOptions = [
-    {
-      id: 'argentx',
-      name: 'ArgentX',
-      description: 'Connect using ArgentX browser extension',
-      icon: '🔑',
-    },
-    {
-      id: 'braavos',
-      name: 'Braavos',
-      description: 'Connect using Braavos wallet',
-      icon: '🔐',
-    }
-  ];
   
   const handleWalletSelect = (walletId: string) => {
     setSelectedWallet(walletId);
@@ -59,21 +58,29 @@ export default function WalletConnectModal({
         </DialogHeader>
         
         <div className="grid gap-4 py-4">
-          {walletOptions.map((wallet) => (
+          {connectors.map((connector) => (
             <button
-              key={wallet.id}
+              key={connector.id}
               className={`flex items-center gap-4 p-4 rounded-lg border transition-all ${
-                selectedWallet === wallet.id
+                selectedWallet === connector.id
                   ? 'border-primary bg-primary/5'
                   : 'border-border hover:border-primary/50'
               }`}
-              onClick={() => handleWalletSelect(wallet.id)}
+              onClick={() => handleWalletSelect(connector.id)}
               disabled={isConnecting}
             >
-              <div className="text-2xl">{wallet.icon}</div>
+              <div className="text-2xl">
+                <WalletIcon name={connector.name} />
+              </div>
               <div className="text-left">
-                <h3 className="font-medium">{wallet.name}</h3>
-                <p className="text-sm text-muted-foreground">{wallet.description}</p>
+                <h3 className="font-medium">{connector.name}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {connector.name === 'Braavos'
+                    ? 'Connect using Braavos wallet'
+                    : connector.name === 'ArgentX'
+                    ? 'Connect using ArgentX browser extension'
+                    : 'Connect using wallet'}
+                </p>
               </div>
             </button>
           ))}

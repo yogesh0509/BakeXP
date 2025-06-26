@@ -1,6 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useAccount, useConnect, useDisconnect } from '@starknet-react/core';
+import { contractManager } from '@/contracts';
 
 // Define types for our wallet state
 type WalletState = {
@@ -36,16 +38,6 @@ export const WalletContext = createContext<WalletContextType>({
 // Hook to use the wallet context
 export const useWallet = () => useContext(WalletContext);
 
-// Generate a mock wallet address
-const generateMockAddress = () => {
-  const chars = '0123456789abcdef';
-  let address = '0x';
-  for (let i = 0; i < 40; i++) {
-    address += chars[Math.floor(Math.random() * chars.length)];
-  }
-  return address;
-};
-
 // Format address to short form (0x1234...5678)
 const formatShortAddress = (address: string): string => {
   if (!address) return '';
@@ -53,6 +45,12 @@ const formatShortAddress = (address: string): string => {
 };
 
 export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { address, isConnected, account } = useAccount();
+  const { connect, connectors, isPending } = useConnect();
+  const { disconnect: starkDisconnect } = useDisconnect();
+  const [error, setError] = useState<string | null>(null);
+  const [hasAttemptedConnection, setHasAttemptedConnection] = useState(false);
+
   // Initialize wallet state
   const [wallet, setWallet] = useState<WalletState>({
     connected: false,
@@ -60,86 +58,88 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     balance: null,
     shortAddress: null,
   });
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  // Check for saved wallet connection on component mount
+  // Update wallet state when account changes
   useEffect(() => {
-    const savedWallet = localStorage.getItem('bakexp_wallet');
-    if (savedWallet) {
-      try {
-        const walletData = JSON.parse(savedWallet);
-        if (walletData.connected && walletData.address) {
-          setWallet({
-            ...walletData,
-            shortAddress: formatShortAddress(walletData.address),
-          });
-        }
-      } catch (e) {
-        console.error('Error parsing saved wallet data');
-        localStorage.removeItem('bakexp_wallet');
+    if (isConnected && address) {
+      setWallet(prev => ({
+        ...prev,
+        connected: true,
+        address: address,
+        shortAddress: formatShortAddress(address),
+      }));
+
+      // Set account in contract manager when wallet connects
+      if (account) {
+        console.log('Setting account in contract manager:', address);
+        contractManager.setAccount(account as any);
+      }
+    } else {
+      // Only update to disconnected state if we had previously attempted connection
+      // This prevents the wallet from appearing disconnected on initial load
+      if (hasAttemptedConnection || wallet.connected) {
+        setWallet(prev => ({
+          ...prev,
+          connected: false,
+          address: null,
+          shortAddress: null,
+        }));
+        
+        console.log('Clearing account in contract manager');
+        contractManager.setAccount(null);
       }
     }
-  }, []);
+  }, [address, isConnected, account, hasAttemptedConnection, wallet.connected]);
 
-  // Connect to wallet (mock implementation)
-  const connect = async (): Promise<boolean> => {
-    setIsConnecting(true);
+  // Connect to wallet (only when explicitly called by user)
+  const handleConnect = async (): Promise<boolean> => {
     setError(null);
+    setHasAttemptedConnection(true);
     
     try {
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock connection success
-      const address = generateMockAddress();
-      const balance = '1.25'; // ETH
-      
-      // Update wallet state
-      const newWalletState = {
-        connected: true,
-        address,
-        balance,
-        shortAddress: formatShortAddress(address),
-      };
-      
-      setWallet(newWalletState);
-      
-      // Save to local storage
-      localStorage.setItem('bakexp_wallet', JSON.stringify(newWalletState));
-      
+      // Get the first available connector
+      const connector = connectors[0];
+      if (!connector) {
+        setError('No wallet found. Please install a supported wallet.');
+        return false;
+      }
+
+      await connect({ connector });
       return true;
-    } catch (e) {
-      console.error('Error connecting wallet:', e);
+    } catch (err) {
+      console.error('Error connecting wallet:', err);
       setError('Failed to connect wallet. Please try again.');
       return false;
-    } finally {
-      setIsConnecting(false);
     }
   };
-  
+
   // Disconnect from wallet
-  const disconnect = () => {
+  const handleDisconnect = () => {
+    setError(null);
+    setHasAttemptedConnection(false);
+    
+    // Clear account in contract manager before disconnecting
+    contractManager.setAccount(null);
+    starkDisconnect();
+    
+    // Immediately update wallet state
     setWallet({
       connected: false,
       address: null,
       balance: null,
       shortAddress: null,
     });
-    
-    // Remove from local storage
-    localStorage.removeItem('bakexp_wallet');
   };
-  
+
   // Prepare value object for the context provider
   const value = {
     wallet,
-    connect,
-    disconnect,
-    isConnecting,
+    connect: handleConnect,
+    disconnect: handleDisconnect,
+    isConnecting: isPending,
     error,
   };
-  
+
   return (
     <WalletContext.Provider value={value}>
       {children}

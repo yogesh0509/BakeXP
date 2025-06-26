@@ -4,6 +4,7 @@ import { Geist, Playfair_Display, Dancing_Script } from "next/font/google";
 import { cn } from '@/lib/utils';
 import { WalletProvider } from "@/contexts/WalletContext";
 import { UserDataProvider } from "@/contexts/UserDataContext";
+import { StarknetProvider } from "@/components/providers/StarknetProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -59,11 +60,13 @@ export default function RootLayout({
         playfair.variable,
         dancingScript.variable
       )}>
-        <WalletProvider>
-          <UserDataProvider>
-            <main>{children}</main>
-          </UserDataProvider>
-        </WalletProvider>
+        <StarknetProvider>
+          <WalletProvider>
+            <UserDataProvider>
+              <main>{children}</main>
+            </UserDataProvider>
+          </WalletProvider>
+        </StarknetProvider>
       </body>
     </html>
   );
