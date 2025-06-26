@@ -21,7 +21,7 @@ interface DashboardData {
 
 export default function Dashboard() {
   const { wallet } = useWallet();
-  const { isConnected, address, getUserXPData, getUserMilestones, services, isInitialized } = useContracts();
+  const { isConnected, address, getUserXPData, getUserMilestones, services } = useContracts();
   const [dashboardData, setDashboardData] = useState<DashboardData>({
     userStats: null,
     milestones: [],
@@ -35,29 +35,12 @@ export default function Dashboard() {
 
   useEffect(() => {
     const loadDashboardData = async () => {
-      // Only load data when wallet is connected, address is available, and contracts are initialized
-      if (!isConnected || !address || !isInitialized) {
-        console.log('Dashboard: Not ready to load data', { 
-          isConnected, 
-          hasAddress: !!address, 
-          isInitialized 
-        });
-        
-        // If wallet is not connected, don't show loading
-        if (!wallet.connected) {
-          setDashboardData(prev => ({ ...prev, isLoading: false }));
-        }
-        return;
-      }
+      if (!isConnected || !address) return;
 
-      console.log('Dashboard: Loading data - contracts ready');
       setDashboardData(prev => ({ ...prev, isLoading: true, error: null }));
 
       try {
         console.log('Loading dashboard data for address:', address);
-        
-        // Add a small delay to ensure contracts are fully ready
-        await new Promise(resolve => setTimeout(resolve, 100));
         
         // Load all dashboard data in parallel
         const [userStats, milestones, podIds] = await Promise.all([
@@ -107,8 +90,6 @@ export default function Dashboard() {
           error: null
         });
 
-        console.log('Dashboard: Data loaded successfully');
-
       } catch (error) {
         console.error('Failed to load dashboard data:', error);
         setDashboardData(prev => ({
@@ -120,7 +101,7 @@ export default function Dashboard() {
     };
 
     loadDashboardData();
-  }, [isConnected, address, isInitialized, wallet.connected]); // Added isInitialized and wallet.connected to dependencies
+  }, [isConnected, address]);
 
   // If not connected, show connect prompt
   if (!wallet.connected) {
@@ -141,18 +122,13 @@ export default function Dashboard() {
     );
   }
   
-  // Show loading state (when wallet is connected but contracts not ready or data loading)
-  if (dashboardData.isLoading || !isInitialized) {
+  // Show loading state
+  if (dashboardData.isLoading) {
     return (
       <Layout>
         <div className="container max-w-6xl mx-auto py-16 px-4 text-center">
           <Loader2 className="h-12 w-12 animate-spin mx-auto text-primary mb-4" />
-          <p className="text-muted-foreground">
-            {!isInitialized 
-              ? 'Initializing contracts...' 
-              : 'Loading your baking stats from blockchain...'
-            }
-          </p>
+          <p className="text-muted-foreground">Loading your baking stats from blockchain...</p>
         </div>
       </Layout>
     );
@@ -160,27 +136,13 @@ export default function Dashboard() {
   
   // Handle error state
   if (dashboardData.error) {
-    const retryLoadData = () => {
-      setDashboardData(prev => ({ ...prev, error: null, isLoading: true }));
-      // Trigger the useEffect to reload data
-      setTimeout(() => {
-        if (isConnected && address && isInitialized) {
-          // Force re-run of useEffect
-          setDashboardData(prev => ({ ...prev, isLoading: false }));
-        }
-      }, 100);
-    };
-
     return (
       <Layout>
         <div className="container max-w-6xl mx-auto py-16 px-4 text-center">
           <h1 className="text-3xl font-bold mb-6">Something went wrong</h1>
           <p className="text-muted-foreground max-w-md mx-auto mb-8">{dashboardData.error}</p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button size="lg" onClick={retryLoadData}>
-              Retry Loading
-            </Button>
-            <Button size="lg" variant="outline" onClick={() => window.location.reload()}>
+          <div className="flex justify-center">
+            <Button size="lg" onClick={() => window.location.reload()}>
               Refresh Page
             </Button>
           </div>

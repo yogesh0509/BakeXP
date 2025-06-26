@@ -61,8 +61,6 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Update wallet state when account changes
   useEffect(() => {
-    console.log('WalletContext: State change', { isConnected, address: !!address, hasAccount: !!account });
-    
     if (isConnected && address) {
       setWallet(prev => ({
         ...prev,
@@ -73,14 +71,13 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
       // Set account in contract manager when wallet connects
       if (account) {
-        console.log('WalletContext: Setting account in contract manager:', address);
+        console.log('Setting account in contract manager:', address);
         contractManager.setAccount(account as any);
       }
     } else {
       // Only update to disconnected state if we had previously attempted connection
       // This prevents the wallet from appearing disconnected on initial load
       if (hasAttemptedConnection || wallet.connected) {
-        console.log('WalletContext: Disconnecting wallet');
         setWallet(prev => ({
           ...prev,
           connected: false,
@@ -88,7 +85,7 @@ export const WalletProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           shortAddress: null,
         }));
         
-        console.log('WalletContext: Clearing account in contract manager');
+        console.log('Clearing account in contract manager');
         contractManager.setAccount(null);
       }
     }
